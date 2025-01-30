@@ -9,15 +9,8 @@ A robust, feature-rich WhatsApp bot built with Node.js, offering semless automat
 
 ## Quick Start Guide
 
-### Connect via QR Code
-1. Visit our [QR Code page](https://axiommds.onrender.com/qr)
-2. Scan the displayed QR code within 30 seconds
-3. Your bot will be ready to use
-
-### Connect via Pair Code
-1. Go to our [Pairing page](https://axiommds.onrender.com/code)
-2. Enter the displayed code in your WhatsApp
-3. Start using your automated WhatsApp bot
+### Connect via QR Code && PairCode
+1. Visit [Axiom](https://axiommds.onrender.com/qr)
 
 ### Deploy on Windows
 ```bash
