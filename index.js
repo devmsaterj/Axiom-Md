@@ -164,6 +164,15 @@ async function Connect() {
     let msg = await serialize(JSON.parse(JSON.stringify(m.messages[0])), conn);
     if (!msg) return;
 
+    const senderrr = msg.key.fromMe ? conn.user.id : (msg.key.participant || msg.key.remoteJid)
+    const senderNum = senderrr.split('@')[0]
+    
+    const isPrivateMode = config.WORK_TYPE.toLowerCase() === 'private'
+    const sudoList = (config.SUDO || '').split(',').map(num => num.trim())
+    const isSudo = sudoList.includes(senderNum)
+
+    if (isPrivateMode && !isSudo) return;
+
     if (msg.key && msg.key.remoteJid === "status@broadcast") {
       try {
         if (await getAutoStatus()) {

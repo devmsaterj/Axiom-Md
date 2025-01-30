@@ -21,7 +21,7 @@ command({
   pattern: "ping",
   fromMe: false,
   desc: "Check bot latency",
-  type: "info"
+  type: "info",
 }, 
 async(message, m, match) => {
   const start = new Date().getTime()

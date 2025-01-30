@@ -2,7 +2,6 @@ const { command } = require("../lib");
 const { writeExifImg } = require("../lib/sticker");
 const fs = require('fs');
 const ffmpeg = require('fluent-ffmpeg');
-const webp = require('node-webpmux');
 const Jimp = require('jimp');
 const { getAutoStatus, setAutoStatus } = require("../lib/database/AutoStatus");
 const { getAntiDelete, setAntiDelete, getDestination, setDestination } = require("../lib/database/antidelete");
@@ -13,10 +12,84 @@ const {
     toggleDMReply, 
     getDMStatus 
 } = require("../lib/database/autoreply");
-const { DMAutoReplyDB } = require("../lib/database/autoreply");
-const e = require("express");
 const config = require("../config");
 const { TinyURL, extractUrlFromMessage, IsGd } = require("../lib/functions");
+const path = require('path');
+const { updateConfigEnv } = require("../lib/utils");
+
+
+command({
+    pattern: "sudo ?(.*)",
+    fromMe: true,
+    desc: "Add a SUDO user",
+    type: "user"
+}, async (message, match, m) => {
+    try {
+        if (!match[0]) {
+            return await message.reply("*Provide a number to add as SUDO*\nExample: .sudo 1234567890");
+        }
+
+        const newSudo = match[0].replace(/[^0-9]/g, '');
+        if (!newSudo) return message.reply("*Invalid number format!*");
+
+        let currentSudo = process.env.SUDO || '';
+        let sudoList = currentSudo.split(',').filter(x => x);
+
+        if (sudoList.includes(newSudo)) {
+            return await message.reply("*This number is already a SUDO user!*");
+        }
+
+        sudoList.push(newSudo);
+        const newSudoString = sudoList.join(',');
+
+        if (await updateConfigEnv('SUDO', newSudoString)) {
+            process.env.SUDO = newSudoString;
+            return await message.reply(`*Successfully added @${newSudo} as SUDO user!*\nRestart bot to apply changes.`, {
+                mentions: [`${newSudo}@s.whatsapp.net`]
+            });
+        } else {
+            return await message.reply("*Failed to update config!*");
+        }
+
+    } catch (error) {
+        console.error("AddSudo Error:", error);
+        return await message.reply("*Failed to add SUDO user!*");
+    }
+});
+
+command({
+    pattern: "rmsudo ?(.*)",
+    fromMe: true,
+    desc: "Remove a SUDO user",
+    type: "user"
+}, async (message, match, m) => {
+    try {
+        if (!match[0]) {
+            return await message.reply("*Provide a number to remove from SUDO*\nExample: .rmsudo 1234567890");
+        }
+        const targetSudo = match[0].replace(/[^0-9]/g, '');
+        if (!targetSudo) return message.reply("*Invalid number format!*");
+        let currentSudo = process.env.SUDO || '';
+        let sudoList = currentSudo.split(',').filter(x => x);
+        if (!sudoList.includes(targetSudo)) {
+            return await message.reply("*This number is not a SUDO user!*");
+        }
+        sudoList = sudoList.filter(x => x !== targetSudo);
+        const newSudoString = sudoList.join(',');
+        if (await updateConfigEnv('SUDO', newSudoString)) {
+            process.env.SUDO = newSudoString;
+            return await message.reply(`*Successfully removed @${targetSudo} from SUDO users!*\nRestart bot to apply changes.`, {
+                mentions: [`${targetSudo}@s.whatsapp.net`]
+            });
+        } else {
+            return await message.reply("*Failed to update config!*");
+        }
+
+    } catch (error) {
+        console.error("DelSudo Error:", error);
+        return await message.reply("*Failed to remove SUDO user!*");
+    }
+});
 
 command({
     pattern: "attp",
