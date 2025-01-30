@@ -47,7 +47,7 @@ const AXMD = async () => {
           }
           await MakeSession(config.SESSION_ID, credFile);
           console.log("Auth file created successfully!");
-          exec('pm2 restart', (error, stdout, stderr) => {
+          exec('pm2 restart ', (error, stdout, stderr) => {
             if (error) {
               console.error('PM2 restart failed:', error);
               process.exit(1);
